@@ -1,7 +1,38 @@
-import { DownOutlined, SearchOutlined } from "@ant-design/icons";
-import { Input, Button } from "antd";
+"use client";
+
+import React, { useState } from "react";
+import { Input, Button, Switch } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
+import { FormattedMessage } from "react-intl";
+import { useLocale } from "../Content/LocaleProvider";
+import DropdownMenu from "../components/DropDownMenu";
+import { useIntl } from "react-intl";
 
 export default function Header() {
+  const { locale, setLocale } = useLocale();
+  const [openMenu, setOpenMenu] = useState(null);
+  const { formatMessage } = useIntl(); // <-- lấy ra formatMessage
+
+  const menus = [
+    {
+      key: "vietcap",
+      labelId: "about",
+      highlight: true,
+      items: [
+        { id: "aboutUs", url: "/about" },
+        { id: "news", url: "/news" },
+      ],
+    },
+    {
+      key: "dichvu",
+      labelId: "services",
+      items: [
+        { id: "personal", url: "/services/personal" },
+        { id: "corporate", url: "/services/corporate" },
+      ],
+    },
+  ];
+
   return (
     <div className="w-full h-[64px] bg-white border-b border-[#dfe2eb] sticky top-0 z-50">
       <div className="flex items-center justify-between w-full h-full max-w-7xl mx-auto px-6">
@@ -9,36 +40,39 @@ export default function Header() {
         <div className="flex items-center text-2xl font-bold whitespace-nowrap">
           Vietcap <span className="text-green-500 ml-1">▲</span>
         </div>
-
         {/* Menu */}
-        <div className="flex items-center space-x-8">
-          <div className="flex items-center gap-1 text-green-600 font-semibold cursor-pointer">
-            Về Vietcap <DownOutlined className="text-[10px]" />
-          </div>
-          <div className="flex items-center gap-1 cursor-pointer">
-            Dịch vụ <DownOutlined className="text-[10px]" />
-          </div>
-          <div className="flex items-center gap-1 cursor-pointer">
-            Sản phẩm <DownOutlined className="text-[10px]" />
-          </div>
-          <div className="flex items-center gap-1 font-semibold cursor-pointer">
-            Go Green Go Up
-          </div>
+        <div className="flex gap-6">
+          {menus.map((menu) => (
+            <DropdownMenu
+              key={menu.key}
+              labelId={menu.labelId}
+              items={menu.items}
+              isOpen={openMenu === menu.key}
+              onOpen={() => setOpenMenu(menu.key)}
+              onClose={() => setOpenMenu(null)}
+              highlight={menu.highlight}
+            />
+          ))}
         </div>
 
         {/* Search + Actions */}
-        <div className="flex items-center gap-3">
+        <div className="flex gap-3 items-center">
           <Input
             prefix={<SearchOutlined />}
-            placeholder="Tìm kiếm"
-            className="!h-[32px] !w-[220px] text-sm"
+            placeholder={formatMessage({
+              id: "search",
+              defaultMessage: "Search",
+            })}
           />
-          <Button className="!h-[32px] !px-4 bg-[#00ff00] text-black font-semibold rounded-md hover:opacity-90">
-            Mở tài khoản
+          <Button>
+            <FormattedMessage id="openAccount" defaultMessage="Open Account" />
           </Button>
-          <Button className="!h-[32px] flex items-center gap-1 border px-3 rounded-full">
-            <span className="text-lg">🇻🇳</span> VI
-          </Button>
+          <Switch
+            onClick={() => setLocale(locale === "vi" ? "en" : "vi")}
+            className="border px-2 py-1 rounded"
+          >
+            {locale === "vi" ? "EN" : "VI"}
+          </Switch>
         </div>
       </div>
     </div>
